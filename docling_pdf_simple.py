@@ -9,12 +9,8 @@ from pathlib import Path
 import argparse
 from typing import Optional
 
-try:
-    from docling.document import Document
-    from docling.datamodel.base_models import DoclingDocument
-except ImportError:
-    print("Error: Docling library not found. Please install it with: pip install docling")
-    sys.exit(1)
+from docling.document_converter import DocumentConverter
+from docling.datamodel.document import DoclingDocument
 
 
 def read_pdf_with_docling(pdf_path: str) -> Optional[DoclingDocument]:
@@ -45,9 +41,10 @@ def read_pdf_with_docling(pdf_path: str) -> Optional[DoclingDocument]:
         print(f"Reading PDF: {pdf_path}")
 
         # Load document using Docling
-        doc = Document.from_path(str(path))
+        converter = DocumentConverter()
+        result = converter.convert(path)
 
-        return doc
+        return result.document
 
     except Exception as e:
         print(f"Error reading PDF '{pdf_path}': {str(e)}")
@@ -73,7 +70,7 @@ def extract_text_and_metadata(doc: DoclingDocument) -> dict:
 
     try:
         # Extract full text
-        result['text'] = doc.text()
+        result['text'] = doc.text_to_markdown()
 
         # Get page count
         result['page_count'] = len(doc.pages)
@@ -83,14 +80,14 @@ def extract_text_and_metadata(doc: DoclingDocument) -> dict:
             result['title'] = doc.title
 
         # Extract metadata
-        if hasattr(doc, 'meta') and doc.meta:
+        if hasattr(doc, 'file_info') and doc.file_info:
             result['metadata'] = {
-                'author': getattr(doc.meta, 'author', ''),
-                'subject': getattr(doc.meta, 'subject', ''),
-                'creator': getattr(doc.meta, 'creator', ''),
-                'producer': getattr(doc.meta, 'producer', ''),
-                'creation_date': getattr(doc.meta, 'creation_date', ''),
-                'modification_date': getattr(doc.meta, 'modification_date', '')
+                'author': getattr(doc.file_info, 'author', ''),
+                'subject': getattr(doc.file_info, 'subject', ''),
+                'creator': getattr(doc.file_info, 'creator', ''),
+                'producer': getattr(doc.file_info, 'producer', ''),
+                'creation_date': getattr(doc.file_info, 'creation_date', ''),
+                'modification_date': getattr(doc.file_info, 'modification_date', '')
             }
 
         return result
