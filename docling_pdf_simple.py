@@ -24,25 +24,8 @@ def read_pdf_with_docling(pdf_path: str) -> Optional[DoclingDocument]:
         DoclingDocument object or None if failed
     """
     try:
-        # Validate file exists
-        path = Path(pdf_path)
-        if not path.exists():
-            print(f"Error: File not found: {pdf_path}")
-            return None
-
-        if not path.is_file():
-            print(f"Error: Path is not a file: {pdf_path}")
-            return None
-
-        if path.suffix.lower() != '.pdf':
-            print(f"Error: File is not a PDF: {pdf_path}")
-            return None
-
-        print(f"Reading PDF: {pdf_path}")
-
-        # Load document using Docling
         converter = DocumentConverter()
-        result = converter.convert(path)
+        result = converter.convert(pdf_path)
 
         return result.document
 
@@ -135,6 +118,26 @@ def print_document_info(content: dict, show_full_text: bool = False):
             print("... (use --full-text to see complete content)")
 
 
+def save_doc_to_file(doc: DoclingDocument, output_path: str):
+    """
+    Save raw DoclingDocument to a text file.
+
+    Args:
+        doc: DoclingDocument object
+        output_path: Path for the output file
+    """
+    try:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write("Raw DoclingDocument Content\n")
+            f.write("="*50 + "\n")
+            f.write(str(doc))
+
+        print(f"\nRaw doc saved to: {output_path}")
+
+    except Exception as e:
+        print(f"Error saving doc to file: {str(e)}")
+
+
 def save_to_file(content: dict, output_path: str):
     """
     Save extracted content to a text file.
@@ -175,16 +178,11 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python docling_pdf_simple.py "document.pdf"
-  python docling_pdf_simple.py "document.pdf" --full-text
-  python docling_pdf_simple.py "document.pdf" --output "extracted_text.txt"
-  python docling_pdf_simple.py "document.pdf" --full-text --output "full_content.txt"
+  python docling_pdf_simple.py
+  python docling_pdf_simple.py --full-text
+  python docling_pdf_simple.py --output "extracted_text.txt"
+  python docling_pdf_simple.py --full-text --output "full_content.txt"
         """
-    )
-
-    parser.add_argument(
-        'pdf_path',
-        help='Path to the PDF file to read'
     )
 
     parser.add_argument(
@@ -200,21 +198,27 @@ Examples:
 
     args = parser.parse_args()
 
+    # Hard-coded PDF file path
+    pdf_path = '/Users/hiep/Project/docling-material/docs_sample/Prompt Engineering Guide.pdf'
+
     # Read the PDF file
-    doc = read_pdf_with_docling(args.pdf_path)
+    doc = read_pdf_with_docling(pdf_path)
 
-    if doc is None:
-        sys.exit(1)
+    # Write raw doc to file immediately after getting it
+    save_doc_to_file(doc, '/Users/hiep/Project/docling-material/doc.txt')
 
-    # Extract content
-    content = extract_text_and_metadata(doc)
+    # if doc is None:
+    #     sys.exit(1)
 
-    # Display information
-    print_document_info(content, args.full_text)
+    # # Extract content
+    # content = extract_text_and_metadata(doc)
 
-    # Save to file if requested
-    if args.output:
-        save_to_file(content, args.output)
+    # # Display information
+    # print_document_info(content, args.full_text)
+
+    # # Save to file if requested
+    # if args.output:
+    #     save_to_file(content, args.output)
 
     print("\nPDF processing completed successfully!")
 
