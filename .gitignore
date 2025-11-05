@@ -177,3 +177,6 @@ Desktop.ini
 *.txt
 *.md
 !README.md
+
+# Git worktrees for isolated development
+.worktrees/
