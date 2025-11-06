@@ -5,6 +5,7 @@ Extracts text and metadata from PDF files.
 """
 
 import sys
+import os
 from pathlib import Path
 import argparse
 from typing import Optional
@@ -253,7 +254,11 @@ Examples:
 
     # Hard-coded PDF file path
     # pdf_path = '/Users/hiep/Project/docling-material/docs_sample/Prompt Engineering Guide.pdf'
-    pdf_path = '/Users/hiep/Project/docling-material/docs_sample/KBV_ITA_VGEX_Anforderungskatalog_KVDT.pdf'
+    pdf_path = '/Users/hiep/Project/docling-material/docs_sample/EXT_ITA_VGEX_Anforderungskatalog_Heilmittel.pdf'
+
+    # Generate markdown filename based on PDF filename
+    pdf_filename = os.path.splitext(os.path.basename(pdf_path))[0]
+    markdown_path = f'/Users/hiep/Project/docling-material/{pdf_filename}.md'
 
     # Read the PDF file
     doc = read_pdf_with_docling(pdf_path)
@@ -265,7 +270,7 @@ Examples:
     save_doc_to_file(doc, '/Users/hiep/Project/docling-material/doc.txt')
 
     # Export to markdown using the new function
-    markdown_path = '/Users/hiep/Project/docling-material/exported_content.md'
+    print(f"Exporting markdown to: {markdown_path}")
     export_to_markdown(doc, markdown_path, include_metadata=True)
 
     # # Extract content
