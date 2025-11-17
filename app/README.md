@@ -39,13 +39,13 @@ npm install
 
 The app expects the Python script at:
 ```
-/Users/hiep/Project/docling-material/src/docling_pdf_simple.py
+../src/docling_pdf_simple.py
 ```
 
 Make sure the Python environment is set up and the script works:
 
 ```bash
-cd /Users/hiep/Project/docling-material
+cd ..
 poetry shell
 python src/docling_pdf_simple.py --help
 ```
@@ -121,7 +121,7 @@ npm install
 2. Make sure Poetry environment is activated
 3. Test the script manually:
 ```bash
-python3 /Users/hiep/Project/docling-material/src/docling_pdf_simple.py \
+python3 ../src/docling_pdf_simple.py \
   --input test.pdf \
   --output test.md
 ```

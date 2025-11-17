@@ -4,7 +4,7 @@
       "Skill(superpowers:brainstorming)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(tree /Users/hiep/Project/docling-material -I \".venv|.git\" -a)"
+      "Bash(tree . -I \".venv|.git\" -a)"
     ],
     "deny": [],
     "ask": []

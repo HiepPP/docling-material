@@ -1,22 +1,22 @@
-[project]
+[tool.poetry]
 name = "docling-material"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Hiệp Phan",email = "hiep.phan@silentium.io"}
+    "Hiệp Phan <hiep.phan@silentium.io>"
 ]
 readme = "README.md"
-requires-python = ">=3.13,<4.0"
-dependencies = [
-    "docling (>=2.60.0,<3.0.0)",
-    "langchain (>=0.2.0,<1.0.0)",
-    "langchain-community (>=0.2.0,<1.0.0)",
-    "langchain-openai (>=0.1.0,<1.0.0)",
-    "chromadb (>=0.4.0,<1.0.0)",
-    "sentence-transformers (>=2.0.0,<3.0.0)",
-    "python-dotenv (>=1.0.0,<2.0.0)"
-]
+package-mode = false
 
+[tool.poetry.dependencies]
+python = ">=3.12,<4.0"
+docling = ">=2.60.0,<3.0.0"
+langchain = ">=0.2.0,<1.0.0"
+langchain-community = ">=0.2.0,<1.0.0"
+langchain-openai = ">=0.1.0,<1.0.0"
+chromadb = ">=0.4.0,<1.0.0"
+sentence-transformers = ">=2.0.0,<3.0.0"
+python-dotenv = ">=1.0.0,<2.0.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

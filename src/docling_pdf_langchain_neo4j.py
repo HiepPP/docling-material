@@ -131,8 +131,8 @@ def store_chunks_in_neo4j(documents: list[Document]) -> bool:
 
 def main():
     """Main function to process PDF and store in Neo4j."""
-    # Hard-coded PDF file path
-    pdf_path = '/Users/hiep/Project/docling-material/docs_sample/KBV_ITA_VGEX_Anforderungskatalog_KVDT.pdf'
+    # PDF file path relative to project root
+    pdf_path = 'docs_sample/KBV_ITA_VGEX_Anforderungskatalog_KVDT.pdf'
 
     # Check if file exists
     if not Path(pdf_path).exists():

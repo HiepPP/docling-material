@@ -1,12 +1,12 @@
-import type { APIRoute } from 'astro';
-import { spawn } from 'child_process';
-import { writeFile, unlink, readFile } from 'fs/promises';
-import { join } from 'path';
-import { tmpdir } from 'os';
-import { randomUUID } from 'crypto';
+import type { APIRoute } from "astro";
+import { spawn } from "child_process";
+import { writeFile, unlink, readFile } from "fs/promises";
+import { join } from "path";
+import { tmpdir } from "os";
+import { randomUUID } from "crypto";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
-const PYTHON_SCRIPT_PATH = '/Users/hiep/Project/docling-material/src/docling_pdf_simple.py';
+const PYTHON_SCRIPT_PATH = "../src/docling_pdf_simple.py";
 
 export const POST: APIRoute = async ({ request }) => {
   let tempPdfPath: string | null = null;
@@ -15,35 +15,43 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     // Parse the multipart form data
     const formData = await request.formData();
-    const pdfFile = formData.get('pdf') as File;
+    const pdfFile = formData.get("pdf") as File;
 
     // Validate file exists
     if (!pdfFile) {
-      return new Response(JSON.stringify({ error: 'No PDF file provided' }), {
+      return new Response(JSON.stringify({ error: "No PDF file provided" }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { "Content-Type": "application/json" },
       });
     }
 
     // Validate file type
-    if (!pdfFile.type.includes('pdf') && !pdfFile.name.endsWith('.pdf')) {
-      return new Response(JSON.stringify({ error: 'Invalid file type. Only PDF files are allowed.' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+    if (!pdfFile.type.includes("pdf") && !pdfFile.name.endsWith(".pdf")) {
+      return new Response(
+        JSON.stringify({
+          error: "Invalid file type. Only PDF files are allowed.",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     // Validate file size
     if (pdfFile.size > MAX_FILE_SIZE) {
-      return new Response(JSON.stringify({ error: 'File size exceeds 50MB limit' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({ error: "File size exceeds 50MB limit" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     // Create temporary file paths
     const uniqueId = randomUUID();
-    const originalFileName = pdfFile.name.replace(/\.[^/.]+$/, ''); // Remove extension
+    const originalFileName = pdfFile.name.replace(/\.[^/.]+$/, ""); // Remove extension
     tempPdfPath = join(tmpdir(), `${uniqueId}.pdf`);
     tempMdPath = join(tmpdir(), `${uniqueId}.md`);
 
@@ -59,11 +67,13 @@ export const POST: APIRoute = async ({ request }) => {
     const conversionResult = await executePythonScript(tempPdfPath, tempMdPath);
 
     if (!conversionResult.success) {
-      throw new Error(conversionResult.error || 'Python script execution failed');
+      throw new Error(
+        conversionResult.error || "Python script execution failed"
+      );
     }
 
     // Read the generated markdown file
-    const markdownContent = await readFile(tempMdPath, 'utf-8');
+    const markdownContent = await readFile(tempMdPath, "utf-8");
 
     // Clean up temp PDF file (keep MD for now to send response)
     await cleanupFile(tempPdfPath);
@@ -73,10 +83,10 @@ export const POST: APIRoute = async ({ request }) => {
     const response = new Response(markdownContent, {
       status: 200,
       headers: {
-        'Content-Type': 'text/markdown',
-        'Content-Disposition': `attachment; filename="${originalFileName}.md"`,
-        'Content-Length': markdownContent.length.toString()
-      }
+        "Content-Type": "text/markdown",
+        "Content-Disposition": `attachment; filename="${originalFileName}.md"`,
+        "Content-Length": markdownContent.length.toString(),
+      },
     });
 
     // Clean up temp markdown file after a short delay to ensure response is sent
@@ -87,9 +97,8 @@ export const POST: APIRoute = async ({ request }) => {
     }, 1000);
 
     return response;
-
   } catch (error) {
-    console.error('Error processing PDF:', error);
+    console.error("Error processing PDF:", error);
 
     // Clean up temp files in case of error
     if (tempPdfPath) await cleanupFile(tempPdfPath);
@@ -97,11 +106,12 @@ export const POST: APIRoute = async ({ request }) => {
 
     return new Response(
       JSON.stringify({
-        error: error instanceof Error ? error.message : 'An unknown error occurred'
+        error:
+          error instanceof Error ? error.message : "An unknown error occurred",
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { "Content-Type": "application/json" },
       }
     );
   }
@@ -110,50 +120,55 @@ export const POST: APIRoute = async ({ request }) => {
 /**
  * Execute the Python script to convert PDF to Markdown
  */
-function executePythonScript(inputPath: string, outputPath: string): Promise<{
+function executePythonScript(
+  inputPath: string,
+  outputPath: string
+): Promise<{
   success: boolean;
   error?: string;
   stdout?: string;
 }> {
   return new Promise((resolve) => {
-    const python = spawn('python3', [
+    const python = spawn("python3", [
       PYTHON_SCRIPT_PATH,
-      '--input', inputPath,
-      '--output', outputPath
+      "--input",
+      inputPath,
+      "--output",
+      outputPath,
     ]);
 
-    let stdout = '';
-    let stderr = '';
+    let stdout = "";
+    let stderr = "";
 
-    python.stdout.on('data', (data) => {
+    python.stdout.on("data", (data) => {
       const output = data.toString();
       stdout += output;
-      console.log('Python stdout:', output);
+      console.log("Python stdout:", output);
     });
 
-    python.stderr.on('data', (data) => {
+    python.stderr.on("data", (data) => {
       const output = data.toString();
       stderr += output;
-      console.error('Python stderr:', output);
+      console.error("Python stderr:", output);
     });
 
-    python.on('error', (error) => {
-      console.error('Failed to start Python process:', error);
+    python.on("error", (error) => {
+      console.error("Failed to start Python process:", error);
       resolve({
         success: false,
-        error: `Failed to start Python process: ${error.message}`
+        error: `Failed to start Python process: ${error.message}`,
       });
     });
 
-    python.on('close', (code) => {
+    python.on("close", (code) => {
       if (code === 0) {
-        console.log('Python script executed successfully');
+        console.log("Python script executed successfully");
         resolve({ success: true, stdout });
       } else {
         console.error(`Python script exited with code ${code}`);
         resolve({
           success: false,
-          error: stderr || `Python script failed with exit code ${code}`
+          error: stderr || `Python script failed with exit code ${code}`,
         });
       }
     });
