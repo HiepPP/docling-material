@@ -232,11 +232,22 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python docling_pdf_simple.py
-  python docling_pdf_simple.py --full-text
-  python docling_pdf_simple.py --output "extracted_text.txt"
-  python docling_pdf_simple.py --full-text --output "full_content.txt"
+  python docling_pdf_simple.py --input input.pdf --output output.md
+  python docling_pdf_simple.py --input input.pdf --output output.md --full-text
+  python docling_pdf_simple.py --input input.pdf --output output.md --no-metadata
         """
+    )
+
+    parser.add_argument(
+        '--input', '-i',
+        required=True,
+        help='Path to the input PDF file'
+    )
+
+    parser.add_argument(
+        '--output', '-o',
+        required=True,
+        help='Path for the output markdown file'
     )
 
     parser.add_argument(
@@ -246,32 +257,32 @@ Examples:
     )
 
     parser.add_argument(
-        '--output', '-o',
-        help='Save extracted content to a text file'
+        '--no-metadata',
+        action='store_true',
+        help='Exclude metadata from the markdown output'
     )
 
     args = parser.parse_args()
 
-    # Hard-coded PDF file path
-    # pdf_path = '/Users/hiep/Project/docling-material/docs_sample/Prompt Engineering Guide.pdf'
-    pdf_path = '/Users/hiep/Project/docling-material/docs_sample/EXT_ITA_VGEX_Anforderungskatalog_Heilmittel.pdf'
-
-    # Generate markdown filename based on PDF filename
-    pdf_filename = os.path.splitext(os.path.basename(pdf_path))[0]
-    markdown_path = f'/Users/hiep/Project/docling-material/{pdf_filename}.md'
+    # Use command-line arguments for paths
+    pdf_path = args.input
+    markdown_path = args.output
 
     # Read the PDF file
     doc = read_pdf_with_docling(pdf_path)
 
     if doc is None:
+        print(f"Failed to read PDF file: {pdf_path}", file=sys.stderr)
         sys.exit(1)
 
-    # Write raw doc to file immediately after getting it
-    save_doc_to_file(doc, '/Users/hiep/Project/docling-material/doc.txt')
-
     # Export to markdown using the new function
+    include_metadata = not args.no_metadata
     print(f"Exporting markdown to: {markdown_path}")
-    export_to_markdown(doc, markdown_path, include_metadata=True)
+    success = export_to_markdown(doc, markdown_path, include_metadata=include_metadata)
+
+    if not success:
+        print("Failed to export markdown", file=sys.stderr)
+        sys.exit(1)
 
     # # Extract content
     # content = extract_text_and_metadata(doc)
